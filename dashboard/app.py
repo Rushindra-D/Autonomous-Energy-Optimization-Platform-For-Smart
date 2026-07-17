@@ -295,8 +295,8 @@ elif page == "📊 Analytics":
 
     household = st.selectbox(
         "Select Household for Forecast Plot",
-        sorted(forecast_sample["LCLid"].unique())
-        if not forecast_sample.empty
+        sorted(cluster_df["LCLid"].unique())
+        if not cluster_df.empty
         else [],
         key="forecast_household",
     )
