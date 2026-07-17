@@ -58,13 +58,50 @@ section[data-testid="stSidebar"] {{
     border-right: 1px solid #1E293B;
 }}
 
-section[data-testid="stSidebar"] * {{
+/* Target specific sidebar text items to avoid leakage of collapse button texts */
+section[data-testid="stSidebar"] div[data-testid="stMarkdownContainer"] p,
+section[data-testid="stSidebar"] span,
+section[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] h2 {{
     color: #F8FAFC !important;
 }}
 
-section[data-testid="stSidebar"] .stRadio label {{
-    color: #E2E8F0 !important;
-    font-weight: 500;
+/* Hide default streamlit radio buttons circles/dots */
+section[data-testid="stSidebar"] div[role="radiogroup"] span[data-baseweb="radio"] {{
+    display: none !important;
+}}
+
+/* Style the navigation links as professional menu tabs */
+section[data-testid="stSidebar"] div[role="radiogroup"] label {{
+    padding: 12px 18px !important;
+    border-radius: 10px !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    margin-bottom: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    cursor: pointer !important;
+    transition: all 0.25s ease !important;
+}}
+
+section[data-testid="stSidebar"] div[role="radiogroup"] label:hover {{
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    transform: translateX(4px);
+}}
+
+/* Highlight selected menu tabs */
+section[data-testid="stSidebar"] div[role="radiogroup"] label[data-checked="true"] {{
+    background: rgba(37, 99, 235, 0.2) !important;
+    border-color: {PRIMARY} !important;
+    border-left: 4px solid {PRIMARY} !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15) !important;
+}}
+
+section[data-testid="stSidebar"] div[role="radiogroup"] label[data-checked="true"] * {{
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
 }}
 
 section[data-testid="stSidebar"] hr {{
@@ -105,11 +142,15 @@ section[data-testid="stSidebar"] hr {{
     border: 1px solid rgba(255, 255, 255, 0.1);
 }}
 
+.hero h1, .hero h2, .hero h3, .hero div, .hero span, .hero p, .hero small, .hero * {{
+    color: #FFFFFF !important;
+}}
+
 .hero h1 {{
     font-size: 34px;
     font-weight: 800 !important;
     margin-bottom: 12px;
-    color: white !important;
+    color: #FFFFFF !important;
 }}
 
 .hero p {{

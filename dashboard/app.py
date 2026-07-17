@@ -108,6 +108,7 @@ page = st.sidebar.radio(
         "📊 Analytics",
         "🤖 AI Advisor",
         "⚙ Workflow",
+        "⚡ Simulation",
         "ℹ About",
     ]
 )
@@ -572,6 +573,226 @@ elif page == "⚙ Workflow":
 - Modern administrative metrics console
             """
         )
+
+    footer()
+
+# =====================================================
+# SIMULATION PAGE
+# =====================================================
+
+elif page == "⚡ Simulation":
+    section(
+        "Custom Load Simulation Panel",
+        "Upload new smart meter logs or simulate custom power readings to test forecasting, clustering, and bill optimization in real-time."
+    )
+
+    tab1, tab2 = st.tabs(["🎛️ Real-Time Parameter Simulator", "📤 Batch CSV Uploader"])
+
+    # -------------------------------------------------
+    # Tab 1: Real-Time Parameter Simulator
+    # -------------------------------------------------
+    with tab1:
+        st.write(
+            """
+            Adjust the sliders below to define a custom 24-hour daily energy usage profile, 
+            then run the AI engine to predict its behavior category, evaluate anomaly risks, and calculate dynamic ToU savings.
+            """
+        )
+
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            base_load = st.slider("Baseload Baseline (kWh)", 0.05, 1.5, 0.2, 0.05)
+            midday_load = st.slider("Midday Active Load (kWh)", 0.05, 2.5, 0.4, 0.1)
+        with c2:
+            peak_load = st.slider("Evening Peak Load (16:00-19:00) (kWh)", 0.1, 5.0, 1.2, 0.1)
+            anom_spikes = st.slider("Simulated Random Spikes (Count)", 0, 5, 1, 1)
+        with c3:
+            shift_percent = st.slider("Target Shift to Off-Peak (%)", 5, 50, 20, 5)
+            user_lbl = st.text_input("Simulated Household Name / Label", "Custom-SIM-Node")
+
+        if st.button("Run Real-Time AI Diagnostics"):
+            # Synthesize 48 half-hour slots
+            slots = []
+            for i in range(48):
+                # Peak hours: slots 32 to 38 (16:00 to 19:00)
+                if 32 <= i <= 38:
+                    val = peak_load
+                # Day hours: slots 16 to 31 (08:00 to 15:30)
+                elif 16 <= i < 32:
+                    val = midday_load
+                # Night hours: slots 0 to 15, 39 to 47
+                else:
+                    val = base_load
+                slots.append(val)
+
+            # Insert simulated anomaly spikes at random places
+            import numpy as np
+            np.random.seed(42)
+            if anom_spikes > 0:
+                spike_idx = np.random.choice(range(48), size=anom_spikes, replace=False)
+                for idx in spike_idx:
+                    slots[idx] = slots[idx] * np.random.uniform(2.5, 4.0)
+
+            # 1. K-Means Assignment (Find closest cluster based on Euclidean distance)
+            best_dist = float("inf")
+            best_cluster = 0
+            best_label = "Low Consumer"
+            
+            if not cluster_summary.empty:
+                for idx, row in cluster_summary.iterrows():
+                    cluster_slots = []
+                    # Compute average distance
+                    for s in range(48):
+                        # Approximate cluster centroid slots from summary
+                        cluster_slots.append(row["avg_consumption"])
+                    dist = np.linalg.norm(np.array(slots) - np.array(cluster_slots))
+                    if dist < best_dist:
+                        best_dist = dist
+                        best_cluster = int(row["cluster"])
+                        best_label = row["label"]
+
+            # 2. Anomaly Detection (Simple rolling threshold approximation)
+            mean_val = np.mean(slots)
+            std_val = np.std(slots) if np.std(slots) > 0 else 0.1
+            anoms_count = sum(1 for x in slots if (x - mean_val) / std_val > 2.0)
+            risk_level = "Low"
+            if anoms_count > 3:
+                risk_level = "High"
+            elif anoms_count > 1:
+                risk_level = "Medium"
+
+            # 3. Dynamic savings calculation
+            # Peak rate: 67.20p, Offpeak: 3.99p, Normal: 11.76p
+            peak_total = sum(slots[32:39])
+            peak_cost = peak_total * 0.672
+            shifted_kwh = peak_total * (shift_percent / 100.0)
+            savings_gbp = shifted_kwh * (0.672 - 0.0399) * 30.0 # Monthly savings estimate (30 days)
+
+            # Display results
+            st.success("🎉 Simulation Analysis Complete!")
+            
+            sc1, sc2, sc3, sc4 = st.columns(4)
+            with sc1:
+                metric_card("Simulated Cohort", best_label, f"Cluster ID #{best_cluster}", icon="👥", color=PRIMARY)
+            with sc2:
+                metric_card("Anomalies Detected", f"{anoms_count} spikes", f"Risk: {risk_level}", icon="🚨", color=DANGER if risk_level=="High" else WARNING)
+            with sc3:
+                metric_card("Peak Period Consumption", f"{peak_total:.3f} kWh", "16:00 - 19:00", icon="⚡", color=INFO)
+            with sc4:
+                metric_card("Est. Monthly Savings", f"£{savings_gbp:.2f}", f"Shifting {shift_percent}% to Off-Peak", icon="💰", color=SUCCESS)
+
+            # Plot simulated load curve
+            time_labels = []
+            for i in range(48):
+                h = i // 2
+                m = "00" if i % 2 == 0 else "30"
+                time_labels.append(f"{h:02d}:{m}")
+
+            fig = go.Figure()
+            fig.add_trace(
+                go.Scatter(
+                    x=time_labels,
+                    y=slots,
+                    mode="lines+markers",
+                    line=dict(color=PRIMARY, width=2.5),
+                    marker=dict(size=6, color=PRIMARY),
+                    name="Simulated Readings"
+                )
+            )
+            fig.update_xaxes(title="Time of Day", tickangle=-45)
+            fig.update_yaxes(title="Simulated Consumption (kWh)")
+            st.plotly_chart(apply_layout(fig, f"Simulated 24-Hour Load Profile: {user_lbl}"), use_container_width=True)
+
+    # -------------------------------------------------
+    # Tab 2: Batch CSV Uploader
+    # -------------------------------------------------
+    with tab2:
+        st.write(
+            """
+            Upload a custom smart meter CSV file containing columns `LCLid`, `tstp`, and `consumption` 
+            to evaluate it against the optimization platform.
+            """
+        )
+
+        uploaded_file = st.file_uploader("Choose Smart Meter Readings CSV File", type=["csv"])
+
+        if uploaded_file is not None:
+            try:
+                uploaded_df = pd.read_csv(uploaded_file)
+                
+                # Check required columns
+                required_cols = {"LCLid", "tstp", "consumption"}
+                if not required_cols.issubset(uploaded_df.columns):
+                    st.error(f"CSV must contain the following columns: {required_cols}")
+                else:
+                    uploaded_df["tstp"] = pd.to_datetime(uploaded_df["tstp"])
+                    
+                    st.success("CSV Uploaded successfully!")
+                    
+                    # Preview Data
+                    st.write("📋 **Data Preview (First 5 Rows)**")
+                    st.dataframe(uploaded_df.head(), use_container_width=True)
+
+                    # Quick aggregation metrics
+                    total_rows = len(uploaded_df)
+                    unique_houses = uploaded_df["LCLid"].nunique()
+                    avg_c = uploaded_df["consumption"].mean()
+                    max_c = uploaded_df["consumption"].max()
+
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    st.subheader("📊 Aggregated Upload Analytics")
+
+                    mc1, mc2, mc3 = st.columns(3)
+                    with mc1:
+                        metric_card("Total Uploaded Rows", f"{total_rows:,}", "Readings registered", icon="📁", color=PRIMARY)
+                    with mc2:
+                        metric_card("Unique Household Nodes", str(unique_houses), "Identified households", icon="🏠", color=INFO)
+                    with mc3:
+                        metric_card("Average Power Consumption", f"{avg_c:.3f} kWh", f"Peak limit: {max_c:.2f} kWh", icon="⚡", color=SUCCESS)
+
+                    # Anomaly Detection approximation on uploaded CSV
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    st.subheader("🚨 Anomaly Spikes Detection")
+                    
+                    global_mean = uploaded_df["consumption"].mean()
+                    global_std = uploaded_df["consumption"].std()
+                    if global_std == 0 or pd.isna(global_std):
+                        global_std = 0.1
+                        
+                    uploaded_df["z_score"] = (uploaded_df["consumption"] - global_mean) / global_std
+                    anoms = uploaded_df[uploaded_df["z_score"] > 3.0]
+                    anoms_pct = (len(anoms) / total_rows) * 100 if total_rows > 0 else 0
+
+                    ac1, ac2 = st.columns(2)
+                    with ac1:
+                        metric_card("Flagged Anomaly Events", f"{len(anoms)} spikes", f"Z-score threshold > 3.0 ({anoms_pct:.2f}%)", icon="🚨", color=DANGER)
+                    with ac2:
+                        # Estimate ToU potential savings
+                        # Shift peak load (16:00-19:00) by 20%
+                        uploaded_df["hour"] = uploaded_df["tstp"].dt.hour
+                        peak_hours_mask = (uploaded_df["hour"] >= 16) & (uploaded_df["hour"] < 19)
+                        total_peak_consumption = uploaded_df[peak_hours_mask]["consumption"].sum()
+                        potential_savings = total_peak_consumption * 0.20 * (0.672 - 0.0399)
+                        metric_card("Estimated Batch Savings", f"£{potential_savings:.2f}", "Assuming 20% Peak-to-Offpeak load shift", icon="💰", color=SUCCESS)
+
+                    if not anoms.empty:
+                        st.write("🚨 **Sample Anomaly Logs (First 5 Rows)**")
+                        st.dataframe(anoms[["LCLid", "tstp", "consumption", "z_score"]].head(), use_container_width=True)
+
+            except Exception as e:
+                st.error(f"Error parsing CSV file: {str(e)}")
+        else:
+            # Show file schema description
+            st.info(
+                """
+                💡 **Expected CSV Schema Format:**
+                - `LCLid`: Unique household ID (e.g., `MAC000002`)
+                - `tstp`: Timestamp format (`YYYY-MM-DD HH:MM:SS`)
+                - `consumption`: Float reading value in kWh
+                
+                *You can export a sample household report from the AI Advisor page and upload it here to test.*
+                """
+            )
 
     footer()
 
