@@ -1,0 +1,16 @@
+Feature,Importance
+roll_mean_48,0.4648488
+lag_48,0.21701105
+lag_336,0.17388327
+roll_std_48,0.04703989
+hour,0.036668606
+month,0.010199464
+weekofyear,0.010040933
+is_weekend,0.0072883405
+dayofweek,0.006716824
+temperature,0.005596715
+humidity,0.005129378
+quarter,0.0042533227
+is_holiday,0.0039598886
+pressure,0.0038593633
+windSpeed,0.0035042225

@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# VS Code
+.vscode/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment variables
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Output images/html (not CSVs — CSVs are tracked)
+outputs/*.png
+outputs/*.jpg
+outputs/*.html
+
+# Raw large dataset files (download separately from Kaggle)
+data/halfhourly_dataset/
+data/processed_meter_data.parquet
+data/weather_hourly_darksky.csv
