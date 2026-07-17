@@ -55,16 +55,10 @@ anomalies = load_anomalies()
 # =====================================================
 
 def household_list():
-    """Return only households that have data in ALL four datasets."""
+    """Return households that have data in recommendations AND clusters."""
     rec_ids   = set(recommendations["LCLid"].unique())
-    fore_ids  = set(forecast["LCLid"].unique())
     clust_ids = set(clusters["LCLid"].unique())
-
-    # cluster_summary is keyed by cluster number, not LCLid —
-    # so we only need the household to appear in clusters to
-    # resolve its summary row via the cluster column.
-    valid_ids = rec_ids & fore_ids & clust_ids
-
+    valid_ids = rec_ids & clust_ids
     return sorted(list(valid_ids))
 
 
@@ -76,13 +70,19 @@ def forecast_information(household):
     df = forecast[forecast["LCLid"] == household]
 
     if df.empty:
-        return None
+        # Forecast sample doesn't cover every household — return safe defaults
+        return {
+            "actual":    0.0,
+            "predicted": 0.0,
+            "minimum":   0.0,
+            "maximum":   0.0,
+        }
 
     return {
-        "actual": round(df["consumption"].mean(), 3),
+        "actual":    round(df["consumption"].mean(), 3),
         "predicted": round(df["predicted"].mean(), 3),
-        "minimum": round(df["consumption"].min(), 3),
-        "maximum": round(df["consumption"].max(), 3),
+        "minimum":   round(df["consumption"].min(), 3),
+        "maximum":   round(df["consumption"].max(), 3),
     }
 
 # =====================================================
