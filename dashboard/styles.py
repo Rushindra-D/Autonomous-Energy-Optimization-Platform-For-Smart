@@ -546,6 +546,8 @@ def recommendation_card(
 
 
 def about_card(title, icon, content_html, border_color=PRIMARY):
+    import textwrap
+    cleaned_html = textwrap.dedent(content_html).strip()
     st.markdown(
         f"""
 <div class="about-card" style="border-top: 4px solid {border_color};">
@@ -554,7 +556,7 @@ def about_card(title, icon, content_html, border_color=PRIMARY):
         <span class="about-card-title">{title}</span>
     </div>
     <div class="about-card-content">
-        {content_html}
+        {cleaned_html}
     </div>
 </div>
 """,
