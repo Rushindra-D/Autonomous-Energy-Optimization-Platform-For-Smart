@@ -70,13 +70,22 @@ def forecast_information(household):
     df = forecast[forecast["LCLid"] == household]
 
     if df.empty:
-        # Forecast sample doesn't cover every household — return safe defaults
-        return {
-            "actual":    0.0,
-            "predicted": 0.0,
-            "minimum":   0.0,
-            "maximum":   0.0,
-        }
+        # Forecast sample doesn't cover every household —
+        # Fall back to 48-slot average load profile from clusters
+        cluster_row = clusters[clusters["LCLid"] == household]
+        if not cluster_row.empty:
+            slot_cols = [f"slot_{i}" for i in range(48)]
+            slot_vals = cluster_row.iloc[0][slot_cols].values.astype(float)
+            avg = round(float(slot_vals.mean()), 3)
+            mn  = round(float(slot_vals.min()),  3)
+            mx  = round(float(slot_vals.max()),  3)
+            return {
+                "actual":    avg,
+                "predicted": avg,   # no model prediction available; mirror actual
+                "minimum":   mn,
+                "maximum":   mx,
+            }
+        return {"actual": 0.0, "predicted": 0.0, "minimum": 0.0, "maximum": 0.0}
 
     return {
         "actual":    round(df["consumption"].mean(), 3),
@@ -84,6 +93,7 @@ def forecast_information(household):
         "minimum":   round(df["consumption"].min(), 3),
         "maximum":   round(df["consumption"].max(), 3),
     }
+
 
 # =====================================================
 # Cluster Information
