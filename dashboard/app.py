@@ -890,10 +890,10 @@ elif page == "ℹ About":
             "👤",
             """
             <p style="font-weight: 700; font-size: 16px; margin: 0; color: #0F172A;">Rushindra Dobila</p>
-            <p style="color: #64748B; margin-top: 4px;">B.Tech Computer Science Engineering</p>
+            <p style="color: #64748B; margin-top: 4px;">B.Tech Engineering</p>
             <p style="font-size: 13px; margin: 8px 0 0 0;">
-                Specialization: Artificial Intelligence & Machine Learning<br>
-                Graduation: 2026
+                Specialization: Computer Science<br>
+                Graduation: 2027
             </p>
             <p style="margin-top: 12px;">
                 <a href="https://github.com" target="_blank" class="stButton" style="display:inline-block; padding: 6px 12px; background:#2563EB; color:white !important; text-decoration:none; border-radius: 8px; font-weight:600; font-size:12px;">View GitHub Portfolio</a>
