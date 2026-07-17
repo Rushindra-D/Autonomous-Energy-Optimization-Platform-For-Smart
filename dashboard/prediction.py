@@ -55,7 +55,18 @@ anomalies = load_anomalies()
 # =====================================================
 
 def household_list():
-    return sorted(recommendations["LCLid"].unique().tolist())
+    """Return only households that have data in ALL four datasets."""
+    rec_ids   = set(recommendations["LCLid"].unique())
+    fore_ids  = set(forecast["LCLid"].unique())
+    clust_ids = set(clusters["LCLid"].unique())
+
+    # cluster_summary is keyed by cluster number, not LCLid —
+    # so we only need the household to appear in clusters to
+    # resolve its summary row via the cluster column.
+    valid_ids = rec_ids & fore_ids & clust_ids
+
+    return sorted(list(valid_ids))
+
 
 # =====================================================
 # Forecast Information
