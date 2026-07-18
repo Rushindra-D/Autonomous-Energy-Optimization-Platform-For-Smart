@@ -302,84 +302,7 @@ section[data-testid="stSidebar"] hr {{
     margin-top: 6px;
 }}
 
-/* ---------- Workflow Horizontal Timeline ---------- */
-.timeline-container {{
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-    margin: 20px 0;
-}}
-.timeline-row {{
-    display: flex;
-    justify-content: space-between;
-    align-items: stretch;
-    gap: 15px;
-    flex-wrap: wrap;
-}}
-.timeline-step {{
-    flex: 1;
-    min-width: 220px;
-    position: relative;
-}}
-.workflow-card {{
-    background: white;
-    border-radius: 16px;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    border: 1px solid #E2E8F0;
-    height: 100%;
-    min-height: 160px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    transition: all 0.3s ease;
-}}
-.workflow-card:hover {{
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    border-color: {PRIMARY};
-    transform: translateY(-2px);
-}}
-.workflow-number {{
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: {PRIMARY};
-    color: white !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 12px auto;
-    font-weight: 700;
-    font-size: 15px;
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
-}}
-.workflow-title {{
-    font-weight: 600;
-    font-size: 15px;
-    color: #0F172A !important;
-    margin-bottom: 6px;
-}}
-.workflow-desc {{
-    color: #64748B !important;
-    font-size: 13px;
-    line-height: 1.4;
-}}
-.timeline-connector {{
-    position: absolute;
-    right: -15px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 18px;
-    color: #3B82F6;
-    font-weight: bold;
-    z-index: 10;
-}}
-@media (max-width: 992px) {{
-    .timeline-connector {{
-        display: none;
-    }}
-}}
+
 
 /* ---------- About Page Cards ---------- */
 .about-card {{
@@ -534,22 +457,6 @@ def metric_card(title, value, subtitle="", icon="📊", color=PRIMARY):
         unsafe_allow_html=True,
     )
 
-
-def workflow_card(step, title, desc, has_next=True):
-    connector_html = f'<div class="timeline-connector">→</div>' if has_next else ''
-    st.markdown(
-        f"""
-<div class="timeline-step">
-    <div class="workflow-card">
-        <div class="workflow-number">{step}</div>
-        <div class="workflow-title">{title}</div>
-        <div class="workflow-desc">{desc}</div>
-    </div>
-    {connector_html}
-</div>
-""",
-        unsafe_allow_html=True,
-    )
 
 
 def recommendation_card(

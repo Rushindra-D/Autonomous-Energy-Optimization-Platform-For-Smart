@@ -243,32 +243,28 @@ def actual_vs_prediction(sample_df, household=None):
     df = df.sort_values("tstp")
 
     fig = go.Figure()
-
     fig.add_trace(
         go.Scatter(
             x=df["tstp"],
             y=df["consumption"],
             mode="lines",
             name="Actual Consumption",
-            line=dict(color=PRIMARY, width=2.5),
+            line=dict(color=PRIMARY, width=2.5, shape="spline"),
             hovertemplate="Time: %{x|%Y-%m-%d %H:%M}<br>Actual: %{y:.3f} kWh<extra></extra>"
         )
     )
-
     fig.add_trace(
         go.Scatter(
             x=df["tstp"],
             y=df["predicted"],
             mode="lines",
             name="AI Predicted Consumption",
-            line=dict(color=SUCCESS, dash="dash", width=2.5),
+            line=dict(color=SUCCESS, dash="dash", width=2.5, shape="spline"),
             hovertemplate="Time: %{x|%Y-%m-%d %H:%M}<br>Predicted: %{y:.3f} kWh<extra></extra>"
         )
     )
-
     fig.update_xaxes(title="Timestamp", tickangle=0)
     fig.update_yaxes(title="Consumption (kWh)")
-
     return apply_layout(
         fig,
         f"Consumption Forecast Timeline ({household if household else 'Overall'})"

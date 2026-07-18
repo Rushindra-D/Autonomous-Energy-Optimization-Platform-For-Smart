@@ -13,7 +13,6 @@ from styles import (
     hero,
     section,
     metric_card,
-    workflow_card,
     recommendation_card,
     about_card,
     footer,
@@ -105,9 +104,10 @@ page = st.sidebar.radio(
     "Navigation System",
     [
         "🏠 Home",
-        "📊 Analytics",
+        "📈 Forecasting",
+        "🚨 Anomaly Detection",
+        "👥 Household Clustering",
         "🤖 AI Advisor",
-        "⚙ Workflow",
         "⚡ Simulation",
         "ℹ About",
     ]
@@ -250,185 +250,177 @@ if page == "🏠 Home":
     footer()
 
 # =====================================================
-# ANALYTICS PAGE
+# FORECASTING PAGE
 # =====================================================
 
-elif page == "📊 Analytics":
+elif page == "📈 Forecasting":
     section(
-        "Advanced Analytics Console",
-        "Deep-dive analysis of forecasting accuracies, cluster segmentations, anomaly distributions, and optimization metrics."
+        "Smart Energy Forecasting Console",
+        "Predicting electricity consumption patterns to optimize household energy budgets and grid load planning."
     )
 
-    # -------------------------------------------------
-    # Forecasting
-    # -------------------------------------------------
-    st.subheader("📈 Energy Consumption Forecasting")
-    
+    st.markdown(
+        """
+        <div style='background-color: #EFF6FF; border-left: 5px solid #2563EB; padding: 15px; border-radius: 8px; margin-bottom: 25px;'>
+            <strong>💡 What is Energy Forecasting?</strong><br>
+            It estimates future power usage based on historic patterns and weather trends. This makes it easier to plan low-cost times to run heavy appliances.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.subheader("🤖 AI Model Performance Comparison")
+    st.markdown(
+        """
+        These charts evaluate the accuracy of our forecasting models.
+        - **Mean Absolute Error (MAE)** and **RMSE**: Average forecast deviations (lower is better!).
+        - **R² Score**: Predictability index (closer to 1.0 is better!).
+        """
+    )
     col1, col2 = st.columns(2)
     with col1:
-        st.plotly_chart(
-            forecast_model_chart(forecast_df),
-            use_container_width=True,
-        )
+        st.plotly_chart(forecast_model_chart(forecast_df), use_container_width=True)
     with col2:
-        st.plotly_chart(
-            rmse_chart(forecast_df),
-            use_container_width=True,
-        )
+        st.plotly_chart(rmse_chart(forecast_df), use_container_width=True)
 
-    st.plotly_chart(
-        radar_chart(forecast_df),
-        use_container_width=True,
-    )
-
-    st.plotly_chart(
-        metric_table(forecast_df),
-        use_container_width=True,
-    )
+    col3, col4 = st.columns([1.5, 1])
+    with col3:
+        st.plotly_chart(radar_chart(forecast_df), use_container_width=True)
+    with col4:
+        st.plotly_chart(metric_table(forecast_df), use_container_width=True)
 
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
-
-    # -------------------------------------------------
-    # Actual vs Prediction
-    # -------------------------------------------------
-    st.subheader("📉 Actual vs Predicted Consumption")
+    st.subheader("📉 Actual vs Predicted Consumption Timeline")
+    st.markdown("Compare actual power consumption (blue) against the AI's predicted timeline (dotted green). Notice the smooth spline tracking!")
 
     household = st.selectbox(
-        "Select Household for Forecast Plot",
-        sorted(cluster_df["LCLid"].unique())
-        if not cluster_df.empty
-        else [],
+        "Select Household ID",
+        sorted(cluster_df["LCLid"].unique()) if not cluster_df.empty else [],
         key="forecast_household",
     )
 
     if household:
         st.plotly_chart(
-            actual_vs_prediction(
-                forecast_sample,
-                household,
-            ),
+            actual_vs_prediction(forecast_sample, household),
             use_container_width=True,
         )
 
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
+    st.subheader("🎯 Key Predictors (Feature Importance)")
+    st.markdown("Factors (like calendar events, temperature, or historic hours) that most influence our model's predictions.")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.plotly_chart(feature_importance_chart(feature_df), use_container_width=True)
+    with col2:
+        st.plotly_chart(top_feature_chart(feature_df), use_container_width=True)
 
-    # -------------------------------------------------
-    # Feature Importance
-    # -------------------------------------------------
-    st.subheader("🎯 Feature Importance Analysis")
+    footer()
+
+# =====================================================
+# ANOMALY DETECTION PAGE
+# =====================================================
+
+elif page == "🚨 Anomaly Detection":
+    section(
+        "Energy Anomaly & Spike Tracker",
+        "Monitoring usage readings to flag unusual surges, potential electrical faults, or sudden consumption spikes."
+    )
+
+    st.markdown(
+        """
+        <div style='background-color: #FEF2F2; border-left: 5px solid #DC2626; padding: 15px; border-radius: 8px; margin-bottom: 25px;'>
+            <strong>🚨 Understanding Energy Spikes</strong><br>
+            Anomalies are unexpected spikes in electricity draw. Identifying them helps spot malfunctioning appliances or grid overloads.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     col1, col2 = st.columns(2)
     with col1:
-        st.plotly_chart(
-            feature_importance_chart(feature_df),
-            use_container_width=True,
-        )
+        st.subheader("📊 Spike Severity Distribution")
+        st.markdown("Proportion of anomalies grouped by risk level (Low, Medium, High).")
+        st.plotly_chart(anomaly_severity_chart(anomaly_df), use_container_width=True)
     with col2:
-        st.plotly_chart(
-            top_feature_chart(feature_df),
-            use_container_width=True,
-        )
+        st.subheader("🏠 Households with Most Spikes")
+        st.markdown("Smart meter nodes that recorded the highest counts of out-of-bounds energy spikes.")
+        st.plotly_chart(top_anomaly_households(anomaly_df), use_container_width=True)
 
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
+    st.subheader("📅 Anomaly Events Timeline")
+    st.markdown("Timeline scatter plot of detected anomalies across the smart meter network, scaled by severity.")
+    st.plotly_chart(anomaly_timeline(anomaly_df), use_container_width=True)
 
-    # -------------------------------------------------
-    # Anomaly Detection
-    # -------------------------------------------------
-    st.subheader("🚨 Anomaly Detection Profile")
+    footer()
+
+# =====================================================
+# HOUSEHOLD CLUSTERING PAGE
+# =====================================================
+
+elif page == "👥 Household Clustering":
+    section(
+        "Household Energy Behavioral Profiles",
+        "Grouping households with similar habits and routines to deliver targeted savings tips and rates."
+    )
+
+    st.markdown(
+        """
+        <div style='background-color: #F0FDF4; border-left: 5px solid #16A34A; padding: 15px; border-radius: 8px; margin-bottom: 25px;'>
+            <strong>👥 Why group households?</strong><br>
+            Not everyone uses energy the same way. By grouping homes with similar routines, we can provide personalized peak-shifting recommendations.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     col1, col2 = st.columns(2)
     with col1:
-        st.plotly_chart(
-            anomaly_severity_chart(anomaly_df),
-            use_container_width=True,
-        )
+        st.subheader("📊 Profile Classifications")
+        st.markdown("Number of households grouped under each behavioral profile.")
+        st.plotly_chart(cluster_distribution(cluster_df), use_container_width=True)
     with col2:
-        st.plotly_chart(
-            top_anomaly_households(anomaly_df),
-            use_container_width=True,
-        )
-
-    st.plotly_chart(
-        anomaly_timeline(anomaly_df),
-        use_container_width=True,
-    )
+        st.subheader("⚡ Profile Consumption Rates")
+        st.markdown("Average half-hourly energy draw (in kWh) for each profile category.")
+        st.plotly_chart(cluster_average_consumption(cluster_summary), use_container_width=True)
 
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
-
-    # -------------------------------------------------
-    # Clustering
-    # -------------------------------------------------
-    st.subheader("🏠 Household Behavioral Clustering")
-
-    col1, col2 = st.columns(2)
-    with col1:
-        st.plotly_chart(
-            cluster_distribution(cluster_df),
-            use_container_width=True,
-        )
-    with col2:
-        st.plotly_chart(
-            cluster_average_consumption(cluster_summary),
-            use_container_width=True,
-        )
-
-    st.plotly_chart(
-        peak_ratio_chart(cluster_summary),
-        use_container_width=True,
-    )
-
-    st.plotly_chart(
-        weekend_weekday_chart(cluster_summary),
-        use_container_width=True,
-    )
+    col3, col4 = st.columns(2)
+    with col3:
+        st.subheader("🕒 Peak to Average Ratios")
+        st.markdown("Ratios showing how much peak usage exceeds average load. High values indicate great peak-shifting potential.")
+        st.plotly_chart(peak_ratio_chart(cluster_summary), use_container_width=True)
+    with col4:
+        st.subheader("📅 Weekday vs Weekend Habits")
+        st.markdown("Comparing average consumption during the workweek vs. weekends across profiles.")
+        st.plotly_chart(weekend_weekday_chart(cluster_summary), use_container_width=True)
 
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
-
-    # -------------------------------------------------
-    # Household Load Curve
-    # -------------------------------------------------
-    st.subheader("⚡ Household Daily Load Curves")
-
+    st.subheader("⚡ Household Load Curves")
+    st.markdown("Select a household to view its average 24-hour daily energy usage curve.")
+    
     selected_house = st.selectbox(
         "Select Household for Average Load Curve",
-        sorted(cluster_df["LCLid"].unique())
-        if not cluster_df.empty
-        else [],
+        sorted(cluster_df["LCLid"].unique()) if not cluster_df.empty else [],
         key="cluster_household",
     )
 
     if selected_house:
         st.plotly_chart(
-            load_curve(
-                cluster_df,
-                selected_house,
-            ),
+            load_curve(cluster_df, selected_house),
             use_container_width=True,
         )
 
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
-
-    # -------------------------------------------------
-    # Recommendations
-    # -------------------------------------------------
     st.subheader("💡 Energy Saving & Cohort Analysis")
-
+    st.markdown("Ranked lists and recommended strategies for Time of Use (ToU) tariff optimizations.")
+    
     col1, col2 = st.columns(2)
     with col1:
-        st.plotly_chart(
-            recommendation_chart(recommendation_df),
-            use_container_width=True,
-        )
+        st.plotly_chart(recommendation_chart(recommendation_df), use_container_width=True)
     with col2:
-        st.plotly_chart(
-            savings_chart(recommendation_df),
-            use_container_width=True,
-        )
+        st.plotly_chart(savings_chart(recommendation_df), use_container_width=True)
 
-    st.plotly_chart(
-        savings_table(recommendation_df),
-        use_container_width=True,
-    )
+    st.plotly_chart(savings_table(recommendation_df), use_container_width=True)
 
     footer()
 
@@ -445,136 +437,7 @@ elif page == "🤖 AI Advisor":
     energy_advisor()
     footer()
 
-# =====================================================
-# WORKFLOW
-# =====================================================
 
-elif page == "⚙ Workflow":
-    section(
-        "Machine Learning Pipeline Flow",
-        "A visualization of the pipeline architecture from smart telemetry ingest to final support recommendations."
-    )
-
-    # Cohesive Horizontal Timeline Layout
-    st.markdown('<div class="timeline-container">', unsafe_allow_html=True)
-    
-    # Row 1: Steps 1 to 4
-    row1 = st.columns(4)
-    with row1[0]:
-        workflow_card(
-            "1",
-            "Data Collection",
-            "London Smart Meter dataset ingestion, quality validation, and database load.",
-            has_next=True
-        )
-
-    with row1[1]:
-        workflow_card(
-            "2",
-            "Feature Engineering",
-            "Generates statistical aggregates, temporal calendars, and meteorological variables.",
-            has_next=True
-        )
-
-    with row1[2]:
-        workflow_card(
-            "3",
-            "Forecasting Models",
-            "Runs regression models (XGBoost, Random Forests) to forecast consumption timelines.",
-            has_next=True
-        )
-
-    with row1[3]:
-        workflow_card(
-            "4",
-            "Anomaly Detection",
-            "Executes unsupervised Isolation Forests to flag out-of-bounds power surges.",
-            has_next=False
-        )
-
-    st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
-
-    # Row 2: Steps 5 to 8
-    row2 = st.columns(4)
-    with row2[0]:
-        workflow_card(
-            "5",
-            "K-Means Clustering",
-            "Segments consumer nodes based on hourly load behaviors into behavioral profiles.",
-            has_next=True
-        )
-
-    with row2[1]:
-        workflow_card(
-            "6",
-            "Recommendation Engine",
-            "Maps cluster patterns and savings potential into explicit consumer recommendation cards.",
-            has_next=True
-        )
-
-    with row2[2]:
-        workflow_card(
-            "7",
-            "Dashboard Services",
-            "Exposes analytical variables, timelines, and metrics through a Streamlit UI portal.",
-            has_next=True
-        )
-
-    with row2[3]:
-        workflow_card(
-            "8",
-            "Optimization Support",
-            "Empowers residential managers to plan demand responses and control grid load peaks.",
-            has_next=False
-        )
-
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown("---")
-
-    st.subheader("Core Technology Stack")
-
-    tech1, tech2, tech3 = st.columns(3)
-
-    with tech1:
-        st.info(
-            """
-**Machine Learning Algorithms**
-
-- **XGBoost Regressor**: Energy forecasting
-- **Random Forest**: consumption estimations
-- **Linear Regression**: Baseline computations
-- **Isolation Forest**: Usage anomaly detection
-- **K-Means Clustering**: Behavioral profiling
-            """
-        )
-
-    with tech2:
-        st.info(
-            """
-**Core Python Libraries**
-
-- **Pandas**: Data transformation and cleaning
-- **NumPy**: Vectorized mathematics
-- **Scikit-Learn**: Cluster and anomaly training
-- **Plotly Express**: Interactive chart generation
-- **Streamlit**: Application runtime rendering
-            """
-        )
-
-    with tech3:
-        st.info(
-            """
-**Platform Features**
-
-- Time-series energy forecasting
-- Automatic usage spike alert rules
-- Dynamic household profiling cohorts
-- Custom savings calculations (£/mo)
-- Modern administrative metrics console
-            """
-        )
-
-    footer()
 
 # =====================================================
 # SIMULATION PAGE

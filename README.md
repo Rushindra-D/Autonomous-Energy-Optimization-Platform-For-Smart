@@ -43,9 +43,6 @@ Select any household ID to receive:
 - Anomaly risk badge (Low / Medium / High)
 - Personalized AI energy recommendation
 
-### ⚙ Workflow — Pipeline Architecture
-Visual horizontal timeline of all 8 pipeline stages from data ingest to optimization delivery.
-
 ### ℹ About — Project Documentation
 Cards covering project objectives, ML models used, dataset metadata, and the technology architecture.
 
@@ -67,8 +64,7 @@ energy_project/
 │   ├── anomaly_detection.py       # Isolation Forest + z-score detection
 │   ├── clustering.py              # K-Means household segmentation
 │   ├── recommendations.py         # ToU tariff-aware savings engine
-│   ├── create_dashboard_data.py   # Builds dashboard_data.parquet
-│   └── pipeline.py                # Orchestrates all phases end-to-end
+│   └── create_dashboard_data.py   # Builds dashboard_data.parquet
 ├── dashboard/
 │   ├── app.py                     # Main Streamlit application
 │   ├── charts.py                  # All Plotly chart functions
@@ -104,13 +100,13 @@ pip install -r requirements.txt
 python src/generate_sample_data.py
 ```
 
-### 3. Run the full ML pipeline
+### 3. Run the data pipeline
 
 ```bash
-python src/pipeline.py
+python src/data_pipeline.py
 ```
 
-This executes all 6 phases: data loading → feature engineering → forecasting → anomaly detection → clustering → recommendations. All output CSVs are written to `outputs/`.
+This executes the ETL process: data loading → cleaning → feature engineering → validation.
 
 ### 4. Launch the dashboard
 
@@ -148,8 +144,8 @@ data/
 ```
 3. Start with a small subset:
 ```python
-# In src/pipeline.py
-main(n_blocks=10)   # load only 10 blocks (~few hundred households)
+# In src/data_pipeline.py
+run_pipeline(n_blocks=10)   # load only 10 blocks (~few hundred households)
 ```
 4. Scale up gradually once the end-to-end flow is verified.
 
@@ -170,17 +166,6 @@ The recommendation engine uses **Low Carbon London dynamic Time-of-Use tariffs**
 Update `PEAK_RATE`, `OFFPEAK_RATE`, `NORMAL_RATE` in `src/recommendations.py` to match your tariff structure.
 
 ---
-
-## ⚙️ Automating the Pipeline
-
-Schedule `pipeline.py` with cron for daily automatic re-runs:
-
-```bash
-# Add to crontab (Linux/Mac) — runs at 3am daily
-0 3 * * * cd /path/to/energy_project && python src/pipeline.py >> logs/pipeline.log 2>&1
-```
-
-For production-grade orchestration, wrap `pipeline.main()` in an **Airflow DAG** or **Prefect flow** for retries, alerting, and run history.
 
 ---
 
