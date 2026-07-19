@@ -1,5 +1,6 @@
 # ⚡ Autonomous Energy Optimization Platform
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://autonomous-energy-optimization-platform-for-smart.streamlit.app/)
 ![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.28+-red?logo=streamlit&logoColor=white)
 ![Plotly](https://img.shields.io/badge/Plotly-5.18+-3F4F75?logo=plotly&logoColor=white)
@@ -7,6 +8,8 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 An enterprise-grade, AI-powered decision support system built on time-series smart meter readings. The platform is designed to **"forecast consumption, identify usage patterns, and deliver optimization insights for smarter and more efficient energy management"**.
+
+🔗 **Live Deployment**: [autonomous-energy-optimization-platform-for-smart.streamlit.app](https://autonomous-energy-optimization-platform-for-smart.streamlit.app/)
 
 By integrating advanced machine learning pipelines (supervised time-series forecasting, unsupervised behavioral clustering, and multivariate anomaly detection), the platform transforms complex smart grid readings into plain-English savings recommendations under dynamic Time-of-Use (ToU) tariffs.
 
