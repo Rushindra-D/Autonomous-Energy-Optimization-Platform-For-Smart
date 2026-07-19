@@ -512,6 +512,31 @@ def about_card(title, icon, content_html, border_color=PRIMARY):
     )
 
 
+def insight_card(title, content, icon="💡", border_color=PRIMARY):
+    st.markdown(
+        f"""
+<div style="
+    background: white;
+    border: 1px solid #E2E8F0;
+    border-left: 5px solid {border_color};
+    padding: 18px 22px;
+    border-radius: 12px;
+    margin-top: 10px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+">
+    <div style="font-size: 13.5px; font-weight: 700; color: #0F172A; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 16px;">{icon}</span> {title}
+    </div>
+    <div style="color: #475569; font-size: 14px; line-height: 1.6; font-weight: 500;">
+        {content}
+    </div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+
 def footer():
     st.markdown(
         """

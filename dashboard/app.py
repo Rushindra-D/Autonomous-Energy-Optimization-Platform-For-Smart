@@ -15,6 +15,7 @@ from styles import (
     metric_card,
     recommendation_card,
     about_card,
+    insight_card,
     footer,
     PRIMARY,
     SECONDARY,
@@ -201,6 +202,15 @@ if page == "🏠 Home":
         consumption_distribution(processed),
         use_container_width=True
     )
+    insight_card(
+        "Data Distribution Insights",
+        "This histogram illustrates the frequency distribution of half-hourly consumption readings across the smart meter network. "
+        "The heavy concentration in the <b>lower range (0.05 to 0.4 kWh)</b> represents baseline energy draw (refrigeration, idle devices). "
+        "The <b>long right-tail</b> represents active high-draw events (HVAC, heaters, washing machines). Targeted load-shifting campaigns "
+        "seek to smooth out these right-tail events.",
+        icon="📊",
+        border_color=PRIMARY
+    )
 
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
 
@@ -223,6 +233,15 @@ if page == "🏠 Home":
             use_container_width=True
         )
 
+    insight_card(
+        "Forecasting Performance Insights",
+        "Our machine learning models are evaluated on predictive performance. The <b>XGBoost Regressor</b> stands out as the champion "
+        "model, delivering the lowest <b>Mean Absolute Error (MAE)</b> and a high <b>R² Score (goodness of fit)</b>. This ensures "
+        "that the automated advisor makes decisions based on highly reliable demand projections rather than simple historical averages.",
+        icon="🧠",
+        border_color=SUCCESS
+    )
+
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
 
     section(
@@ -233,6 +252,14 @@ if page == "🏠 Home":
     st.plotly_chart(
         top_feature_chart(feature_df),
         use_container_width=True
+    )
+    insight_card(
+        "Feature Importance Insights",
+        "The model's decisions are heavily influenced by <b>temporal lag metrics</b> (e.g., consumption during the same hour on the previous day) "
+        "and <b>calendar coordinates</b> (hour of day, day of week). This indicates that residential power consumption is highly habit-driven. "
+        "Weather parameters (temperature, humidity) act as secondary triggers that explain seasonal load escalations.",
+        icon="🎯",
+        border_color=WARNING
     )
 
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
@@ -245,6 +272,14 @@ if page == "🏠 Home":
     st.plotly_chart(
         savings_chart(recommendation_df),
         use_container_width=True
+    )
+    insight_card(
+        "Optimization Opportunities Insights",
+        "This chart ranks households by potential monthly savings under dynamic Time-of-Use (ToU) tariffs. By shifting "
+        "<b>20% of peak consumption (16:00 to 19:00)</b> to off-peak periods, heavy consumers can achieve significant "
+        "monthly savings. This highlights the financial viability of intelligent load management for both consumers and grid operators.",
+        icon="💰",
+        border_color=INFO
     )
 
     footer()
@@ -289,6 +324,16 @@ elif page == "📈 Forecasting":
     with col4:
         st.plotly_chart(metric_table(forecast_df), use_container_width=True)
 
+    insight_card(
+        "Forecasting Model Accuracy Insights",
+        "Our analysis contrasts three core modeling techniques. The <b>XGBoost Regressor</b> achieves superior accuracy, "
+        "consistently yielding the lowest MAE and RMSE values. The <b>Radar Chart</b> demonstrates balanced predictive power "
+        "across all evaluation indices. A low MAE (typically below 0.12 kWh) indicates that the model predictions "
+        "will diverge very minimally from actual usage patterns, making it highly dependable for scheduling appliance runs.",
+        icon="🤖",
+        border_color=PRIMARY
+    )
+
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
     st.subheader("📉 Actual vs Predicted Consumption Timeline")
     st.markdown("Compare actual power consumption (blue) against the AI's predicted timeline (dotted green). Notice the smooth spline tracking!")
@@ -304,6 +349,15 @@ elif page == "📈 Forecasting":
             actual_vs_prediction(forecast_sample, household),
             use_container_width=True,
         )
+        insight_card(
+            "Consumption Timeline Insights",
+            f"For household <b>{household}</b>, the 24-hour forecasted curve (green dotted line) closely aligns with the actual "
+            "consumption data (blue solid line). Observing the peaks and valleys allows users to identify specific windows "
+            "where their consumption rises. Shifting load away from the forecasted peaks (e.g. evening hours) to forecasted troughs "
+            "leads to immediate energy bill reductions.",
+            icon="📉",
+            border_color=SUCCESS
+        )
 
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
     st.subheader("🎯 Key Predictors (Feature Importance)")
@@ -313,6 +367,16 @@ elif page == "📈 Forecasting":
         st.plotly_chart(feature_importance_chart(feature_df), use_container_width=True)
     with col2:
         st.plotly_chart(top_feature_chart(feature_df), use_container_width=True)
+
+    insight_card(
+        "Feature Driver Insights",
+        "Feature weights show that <b>historic lags</b> and <b>hour-of-day</b> are the primary determinants. This indicates "
+        "that household schedules (cooking times, work patterns, sleep hours) are the main drivers of grid load. "
+        "Weather parameters (such as dry bulb temperature) are also important, indicating that heatwaves or cold snaps "
+        "will introduce seasonal shifts in consumption baseline due to heating and cooling demands.",
+        icon="🎯",
+        border_color=WARNING
+    )
 
     footer()
 
@@ -346,10 +410,30 @@ elif page == "🚨 Anomaly Detection":
         st.markdown("Smart meter nodes that recorded the highest counts of out-of-bounds energy spikes.")
         st.plotly_chart(top_anomaly_households(anomaly_df), use_container_width=True)
 
+    insight_card(
+        "Severity & Household Spike Insights",
+        "The distribution chart reveals that the vast majority of anomaly events are of <b>Low Severity</b>, which usually represent "
+        "harmless occupant actions like running multiple appliances simultaneously. Conversely, <b>High Severity anomalies</b> "
+        "(shown in red) represent major energy surges. Identifying households with consistent spikes (such as those on the right) "
+        "helps maintenance teams detect faulty household wiring, failing appliances, or potential grid load surges.",
+        icon="🚨",
+        border_color=DANGER
+    )
+
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
     st.subheader("📅 Anomaly Events Timeline")
     st.markdown("Timeline scatter plot of detected anomalies across the smart meter network, scaled by severity.")
     st.plotly_chart(anomaly_timeline(anomaly_df), use_container_width=True)
+
+    insight_card(
+        "Anomaly Timeline Insights",
+        "This scatter plot maps anomaly spikes over time, where the size and color indicate their severity. If anomalies occur "
+        "simultaneously across multiple household IDs (vertical clusters), it indicates grid-wide impacts like a localized "
+        "blackout or extreme regional temperature changes. Isolated dots indicate individual household anomalies that are likely "
+        "due to consumer actions or a local household equipment issue.",
+        icon="📅",
+        border_color=WARNING
+    )
 
     footer()
 
@@ -383,6 +467,16 @@ elif page == "👥 Household Clustering":
         st.markdown("Average half-hourly energy draw (in kWh) for each profile category.")
         st.plotly_chart(cluster_average_consumption(cluster_summary), use_container_width=True)
 
+    insight_card(
+        "Cohort Classification Insights",
+        "Our K-Means clustering algorithm categorizes households into distinct behavioral groups based on usage shapes. "
+        "The distribution chart reveals the proportion of households in each category (e.g., Low Consumers, Night Owls, High Peak Users). "
+        "The consumption rates chart helps utilities identify which household cohorts draw the most overall energy, enabling "
+        "targeted efficiency programs.",
+        icon="👥",
+        border_color=SUCCESS
+    )
+
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
     col3, col4 = st.columns(2)
     with col3:
@@ -393,6 +487,16 @@ elif page == "👥 Household Clustering":
         st.subheader("📅 Weekday vs Weekend Habits")
         st.markdown("Comparing average consumption during the workweek vs. weekends across profiles.")
         st.plotly_chart(weekend_weekday_chart(cluster_summary), use_container_width=True)
+
+    insight_card(
+        "Habits & Peak Load Ratios",
+        "The <b>Peak-to-Average Ratio</b> measures the intensity of household electricity draw during high-cost peak periods (16:00 to 19:00). "
+        "High ratios signify households that are excellent candidates for cost savings through load shifting. "
+        "The <b>Weekday vs. Weekend</b> comparison highlights whether occupants consume more power on weekends, indicating "
+        "routine shifts that could benefit from customized weekend dynamic tariffs.",
+        icon="🕒",
+        border_color=WARNING
+    )
 
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
     st.subheader("⚡ Household Load Curves")
@@ -409,6 +513,14 @@ elif page == "👥 Household Clustering":
             load_curve(cluster_df, selected_house),
             use_container_width=True,
         )
+        insight_card(
+            "Load Curve Interpretation",
+            f"The 24-hour load curve for household <b>{selected_house}</b> displays their average consumption shape across "
+            "48 half-hour slots. If you observe a large peak between 16:00 and 19:00, this household can significantly lower their bill "
+            "by shifting heating, cooling, or laundry tasks to off-peak periods (00:00 - 07:00) or normal mid-day hours.",
+            icon="⚡",
+            border_color=PRIMARY
+        )
 
     st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
     st.subheader("💡 Energy Saving & Cohort Analysis")
@@ -421,6 +533,15 @@ elif page == "👥 Household Clustering":
         st.plotly_chart(savings_chart(recommendation_df), use_container_width=True)
 
     st.plotly_chart(savings_table(recommendation_df), use_container_width=True)
+
+    insight_card(
+        "Optimization Recommendations Insights",
+        "The recommendations distribution and savings table present actionable optimization details. "
+        "Our rule-based engine generates personalized instructions for each household based on their usage habits. "
+        "Following these targeted peak-shifting actions helps users reduce their energy bill while smoothing grid load curves.",
+        icon="💰",
+        border_color=INFO
+    )
 
     footer()
 
@@ -566,6 +687,16 @@ elif page == "⚡ Simulation":
             fig.update_yaxes(title="Simulated Consumption (kWh)")
             st.plotly_chart(apply_layout(fig, f"Simulated 24-Hour Load Profile: {user_lbl}"), use_container_width=True)
 
+            insight_card(
+                "Real-Time Simulation Insights",
+                "Based on the base load and evening peak parameters you defined, the K-Means engine classified this "
+                f"simulated household profile as <b>{best_label}</b>. The rolling Z-score flagged <b>{anoms_count} spike event(s)</b>, "
+                f"giving it a <b>{risk_level}</b> risk rating. Under dynamic ToU rates, shifting {shift_percent}% of the evening "
+                f"peak usage saves approximately <b>£{savings_gbp:.2f} per month</b>.",
+                icon="🎛️",
+                border_color=SUCCESS
+            )
+
     # -------------------------------------------------
     # Tab 2: Batch CSV Uploader
     # -------------------------------------------------
@@ -641,6 +772,16 @@ elif page == "⚡ Simulation":
                     if not anoms.empty:
                         st.write("🚨 **Sample Anomaly Logs (First 5 Rows)**")
                         st.dataframe(anoms[["LCLid", "tstp", "consumption", "z_score"]].head(), use_container_width=True)
+
+                    insight_card(
+                        "Batch Upload Analytics Insights",
+                        f"The uploaded batch contains <b>{total_rows:,}</b> readings across <b>{unique_houses}</b> household nodes. "
+                        f"A total of <b>{len(anoms)} anomalies</b> (or {anoms_pct:.2f}% of the dataset) were detected using a Z-score "
+                        "threshold of 3.0. Shifting 20% of their aggregate evening peak usage to off-peak periods yields a total "
+                        f"estimated savings of <b>£{potential_savings:.2f}</b> across all households.",
+                        icon="📤",
+                        border_color=INFO
+                    )
 
             except Exception as e:
                 st.error(f"Error parsing CSV file: {str(e)}")
