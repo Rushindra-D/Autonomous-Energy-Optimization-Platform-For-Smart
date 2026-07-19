@@ -6,6 +6,10 @@ Autonomous Energy Optimization Platform Dashboard
 Author: Rushindra Dobila
 """
 
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parent))
+
 import streamlit as st
 
 from styles import (
